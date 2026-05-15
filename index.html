@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YI和小蔡的溫哥華遊學手冊</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* 隱藏全域與特定區塊的捲動條圖示 */
+        ::-webkit-scrollbar { display: none; }
+        body { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        body {
+            font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+            background-color: #fafaf9;
+            color: #292524;
+            scroll-behavior: smooth;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 320px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 240px;
+        }
+        .map-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+            background-color: #e2e8f0;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .map-road { position: absolute; background-color: #f8fafc; }
+        .map-marker { position: absolute; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; cursor: pointer; z-index: 10; }
+        .marker-dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .marker-label { background: rgba(255, 255, 255, 0.95); padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; margin-top: 2px; white-space: nowrap; display: none; border: 1px solid #e5e7eb; }
+        .map-marker:hover .marker-label, .map-marker.active .marker-label { display: block; }
+        
+        /* 導覽列樣式 */
+        nav { border-bottom: 1px solid #f1f1f1; background: rgba(255, 255, 255, 0.98); }
+        .nav-logo { font-size: 20px; font-weight: 800; color: #ef4444; }
+        .nav-link { font-size: 17px; color: #444; padding: 10px 0; position: relative; transition: all 0.2s ease; font-weight: 500; }
+        .nav-link.active { color: #ef4444 !important; }
+        .nav-link.active::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 4px; background-color: #ef4444; }
+
+        .van-tab-content { display: none; }
+        .van-tab-content.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .van-tab-btn.active-btn { color: #ef4444; border-bottom: 3px solid #ef4444; }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 2rem;
+            border-left: 2px solid #ef4444;
+            padding-bottom: 1.5rem;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -0.45rem;
+            top: 0;
+            width: 1rem;
+            height: 1rem;
+            background-color: #ef4444;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+    </style>
+</head>
+<body class="antialiased pb-20 md:pb-0 hide-scrollbar">
+
+    <!-- 導覽列 (順序名稱依照 image_19411b.png) -->
+    <nav class="fixed top-0 w-full z-50">
+        <div class="max-w-7xl mx-auto px-6 lg:px-12 flex justify-between items-center h-16">
+            <div class="nav-logo">ca VAN 2026</div>
+            <div class="flex space-x-4 md:space-x-10 overflow-x-auto whitespace-nowrap hide-scrollbar">
+                <a href="#home" class="nav-link active">首頁摘要</a>
+                <a href="#flights" class="nav-link">航班資訊</a>
+                <a href="#hongkong" class="nav-link">香港轉機</a>
+                <a href="#vancouver" class="nav-link">溫哥華</a>
+                <a href="#souvenirs" class="nav-link">伴手禮</a>
+                <a href="#schedule" class="nav-link">四週計畫</a>
+                <a href="#local" class="nav-link">生活地圖</a>
+                <a href="#prep" class="nav-link">行前準備</a>
+            </div>
+            <div class="w-16 hidden md:block"></div>
+        </div>
+    </nav>
+
+    <main class="pt-16">
+        <!-- 首頁摘要 (對齊 image_18d3fd.png) -->
+        <section id="home" class="max-w-6xl mx-auto px-4 py-8 scroll-mt-16">
+            <div class="bg-[#fff9f9] rounded-[2rem] p-6 md:p-12 border border-red-50">
+                <div class="mb-10">
+                    <p class="text-[26px] md:text-[32px] text-[#ef4444] mb-2 font-normal">2026 溫哥華 7 月</p>
+                    <h1 class="text-[42px] md:text-[68px] font-bold text-[#2d3748] leading-tight tracking-tight">YI和小蔡的溫哥華遊學手冊</h1>
+                    <p class="text-[17px] md:text-[20px] text-[#718096] mt-8">蔡昕如不要翹課。</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 住宿基地 -->
+                    <div class="bg-white p-6 rounded-[1.5rem] shadow-sm border border-slate-100 flex items-start text-left">
+                        <div class="text-4xl mr-5 mt-1">🏠</div>
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-lg mb-1">住宿基地</h3>
+                            <p class="text-[#ef4444] font-bold text-base mb-1">Landis Residences</p>
+                            <p class="text-slate-500 text-sm leading-relaxed">1200 Hornby St, Vancouver<br>附簡易廚房，位於市中心核心。</p>
+                        </div>
+                    </div>
+                    <!-- 緊急聯絡 -->
+                    <div class="bg-[#ef4444] p-6 rounded-[1.5rem] flex items-start text-white shadow-lg text-left">
+                        <div class="text-4xl mr-5 mt-1">🚨</div>
+                        <div>
+                            <h3 class="font-bold text-white text-lg mb-1">緊急聯絡</h3>
+                            <p class="text-[52px] font-black leading-none mb-1 tracking-tighter">911</p>
+                            <p class="text-red-50 text-xs">警察、火警、救護車直撥</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 航班資訊 (依據 image_25a1df.jpg) -->
+        <section id="flights" class="max-w-6xl mx-auto px-4 py-6 scroll-mt-16 text-left">
+            <h2 class="text-2xl font-black text-slate-800 mb-6 italic">Flights Info</h2>
+            <div class="space-y-4 text-xs">
+                <div class="bg-white border-l-8 border-red-500 rounded-2xl p-5 shadow-sm">
+                    <p class="text-red-600 font-bold mb-3">🛫 2026年7月4日 週六 (去程)</p>
+                    <div class="grid grid-cols-3 gap-2 text-center items-center font-medium">
+                        <div>TPE 桃園 12:15<br><span class="text-slate-400 font-mono">HX253</span></div>
+                        <div class="text-orange-500 font-bold bg-orange-50 py-1 rounded-full italic">中轉香港 8h 10m</div>
+                        <div>YVR 溫哥華 20:15<br><span class="text-slate-400 font-mono">HX080</span></div>
+                    </div>
+                </div>
+                <div class="bg-white border-l-8 border-slate-800 rounded-2xl p-5 shadow-sm">
+                    <p class="text-slate-800 font-bold mb-3">🛬 2026年8月2日 週日 (回程)</p>
+                    <div class="grid grid-cols-3 gap-2 text-center items-center font-medium">
+                        <div>YVR 溫哥華 01:30<br><span class="text-slate-400 font-mono">HX081</span></div>
+                        <div class="text-blue-500 font-bold bg-blue-50 py-1 rounded-full italic">中轉香港 9h 20m</div>
+                        <div>8/3 18:20 TPE<br><span class="text-slate-400 font-mono">HX260</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 香港轉機 -->
+        <section id="hongkong" class="max-w-6xl mx-auto px-4 py-6 scroll-mt-16 text-left">
+            <div class="bg-white rounded-[1.5rem] p-6 shadow-sm border border-slate-200">
+                <h2 class="text-2xl font-black text-slate-800 mb-4 tracking-tighter">🇭🇰 香港轉機攻略</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-medium">
+                    <div class="p-4 bg-red-50 rounded-xl">🥘 <strong>必吃：</strong>中環一點心/添好運、澳洲牛奶公司、菠蘿油。</div>
+                    <div class="p-4 bg-blue-50 rounded-xl">🚇 <strong>交通：</strong>機場快線 24 分鐘直達中環，Apple Pay 刷八達通。</div>
+                    <div class="p-4 bg-slate-50 rounded-xl">🌆 <strong>行程：</strong>維港海濱散步、天星小輪跨海、大館文青打卡。</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 溫哥華旅遊攻略 (互動標籤) -->
+        <section id="vancouver" class="max-w-6xl mx-auto px-4 py-8 scroll-mt-16">
+            <h2 class="text-2xl font-black text-slate-800 mb-6 text-center italic">Vancouver Guide</h2>
+            <div class="bg-white rounded-[2rem] shadow-lg border border-slate-100 overflow-hidden">
+                <div class="flex border-b border-slate-100 bg-slate-50/50 hide-scrollbar overflow-x-auto">
+                    <button onclick="switchVanTab('parks')" class="van-tab-btn flex-1 py-4 px-2 font-bold text-slate-500 text-sm active-btn" id="btn-parks">🎢 遊樂園</button>
+                    <button onclick="switchVanTab('nature')" class="van-tab-btn flex-1 py-4 px-2 font-bold text-slate-500 text-sm" id="btn-nature">🌲 自然風景</button>
+                    <button onclick="switchVanTab('shopping')" class="van-tab-btn flex-1 py-4 px-2 font-bold text-slate-500 text-sm" id="btn-shopping">🛍️ Shopping</button>
+                    <button onclick="switchVanTab('food')" class="van-tab-btn flex-1 py-4 px-2 font-bold text-slate-500 text-sm" id="btn-food">🍔 美食</button>
+                </div>
+                <div class="p-6 text-left">
+                    <!-- 遊樂園 (更新內容與連結) -->
+                    <div id="tab-parks" class="van-tab-content active">
+                        <div class="space-y-6 text-xs font-medium">
+                            <div class="p-5 bg-indigo-50 rounded-xl border border-indigo-100 shadow-sm">
+                                <h4 class="font-black text-indigo-900 text-base mb-2">
+                                    <a href="https://www.bigsplashwaterpark.ca/" target="_blank" class="hover:underline text-indigo-600">Big Splash Water Park 🔗</a>
+                                </h4>
+                                <p class="mb-3 text-indigo-700">挑戰刺激滑道與超人氣漂流 Tube Slides！老少咸宜，甚至有適合小朋友的專屬區。</p>
+                                <ul class="text-slate-600 space-y-1">
+                                    <li>🗓️ 日期：July - September, 2026 (10:00-18:00)</li>
+                                    <li>📍 地址：4775 Nulelum Way, Tsawwassen, BC</li>
+                                </ul>
+                            </div>
+                            <div class="p-5 bg-pink-50 rounded-xl border border-pink-100 shadow-sm">
+                                <h4 class="font-black text-pink-900 text-base mb-2">Cultus Lake Adventure Park</h4>
+                                <p class="mb-3 text-pink-700">氛圍感極強的主題樂園，像電影場景！有山車、摩天輪拍照超美，適合安排整日遊。</p>
+                                <ul class="text-slate-600 space-y-1">
+                                    <li>🗓️ 日期：Open Daily from May Long Weekend until Sep 1st</li>
+                                    <li>⏰ 時間：11:00 AM - 6:00 PM</li>
+                                    <li>📍 地址：3993 Sunnyside Blvd, Cultus Lake, BC</li>
+                                </ul>
+                            </div>
+                            <div class="p-5 bg-emerald-50 rounded-xl border border-emerald-100 shadow-sm">
+                                <h4 class="font-black text-emerald-900 text-base mb-2">Harrison Water Sports</h4>
+                                <p class="mb-3 text-emerald-700">湖中央的大型充氣設施，真人版水上闖關挑戰！還有 Jet Ski、碰碰船等豐富活動。</p>
+                                <ul class="text-slate-600 space-y-1">
+                                    <li>🗓️ 日期：June - September, 2026 (10:00-18:00)</li>
+                                    <li>📍 地址：100 Esplanade Avenue, Harrison Hot Springs, BC</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 購物 (更新 McArthurGlen) -->
+                    <div id="tab-shopping" class="van-tab-content">
+                        <div class="bg-slate-800 text-white p-5 rounded-2xl mb-6 shadow-md">
+                            <div class="bg-red-600 text-[10px] font-bold px-2 py-0.5 rounded inline-block mb-3 italic">距離機場 3 分鐘</div>
+                            <h4 class="font-black italic mb-2 text-base">McArthurGlen Designer Outlet</h4>
+                            <p class="text-xs text-slate-300 mb-4 leading-relaxed">登機前最後血拼勝地！品牌低至 3 折，充滿歐式風情，還有 Lululemon 特惠店。</p>
+                            <p class="text-[11px] text-red-400 font-bold">📍 1000-7899 Templeton Station Rd, Richmond</p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 text-xs font-bold">
+                            <div class="p-4 border border-slate-200 rounded-xl bg-white shadow-sm">🏢 Pacific Centre 百貨</div>
+                            <div class="p-4 border border-slate-200 rounded-xl bg-white shadow-sm">👗 Robson St 時尚精品</div>
+                        </div>
+                    </div>
+                    <div id="tab-nature" class="van-tab-content text-xs text-slate-600 font-bold space-y-2">
+                        <p>🌉 卡布蘭諾吊橋 (Capilano Bridge) / 挑战懸空步道</p>
+                        <p>🚲 史丹利公園 (Stanley Park) / 單車環繞海堤 Seawall</p>
+                        <p>⛰️ 葛勞士山 (Grouse Mountain) / 俯瞰溫哥華全景</p>
+                    </div>
+                    <div id="tab-food" class="van-tab-content text-xs text-slate-600 font-bold space-y-2">
+                        <p>🍟 Fritz Poutine / 經典起司肉汁薯條</p>
+                        <p>🍣 Miku 炙燒壽司 / 煤氣鎮海邊無敵海景</p>
+                        <p>🌭 Japadog / 日式風味熱狗專賣店</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 伴手禮 (更新為條列式) -->
+        <section id="souvenirs" class="max-w-6xl mx-auto px-4 py-8 scroll-mt-16 text-left">
+            <h2 class="text-2xl font-black text-slate-800 mb-8 border-b-4 border-red-500 inline-block pb-1">🎁 伴手禮清單</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                <!-- 必買清單 -->
+                <div class="bg-white p-6 rounded-[2rem] border border-red-100 shadow-sm">
+                    <h3 class="font-black text-red-600 mb-5 flex items-center text-lg italic">
+                        <span class="mr-3">⭐</span> 必買好物
+                    </h3>
+                    <ul class="text-sm text-slate-600 space-y-4 font-bold">
+                        <li class="flex items-center"><span class="mr-3 text-xl">🧸</span> Jellycat (Indigo 精品店款式多)</li>
+                        <li class="flex items-center"><span class="mr-3 text-xl">🐶</span> 大耳狗 / 三麗鷗系列 (Miniso)</li>
+                        <li class="flex items-center"><span class="mr-3 text-xl">🍷</span> 加拿大冰酒 (家裡伴手禮首選)</li>
+                        <li class="flex items-center"><span class="mr-3 text-xl">🥧</span> 港式蛋塔 (麗都 Lido 必吃)</li>
+                    </ul>
+                </div>
+                <!-- 同事伴手禮 -->
+                <div class="bg-slate-50 p-6 rounded-[2rem] border border-slate-200 shadow-sm">
+                    <h3 class="font-black text-slate-800 mb-5 flex items-center text-lg italic">
+                        <span class="mr-3">👤</span> 同事/一般送禮
+                    </h3>
+                    <ul class="text-sm text-slate-600 space-y-4 font-medium">
+                        <li>• 楓糖餅乾 (經典小包裝好分送)</li>
+                        <li>• 楓糖漿風味爆米花</li>
+                        <li>• 加拿大限定口味零食 (樂事番茄味)</li>
+                        <li>• 特色景點收藏明信片</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 四週計畫 (原版文字) -->
+        <section id="schedule" class="max-w-6xl mx-auto px-4 py-12 scroll-mt-16 text-left">
+            <h2 class="text-2xl font-black text-slate-800 mb-8">📅 四週計畫概覽</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
+                    <div class="text-[10px] font-bold text-slate-400 mb-1 uppercase italic tracking-widest">WEEK 1</div>
+                    <h3 class="text-lg font-bold text-red-600 mb-3 font-black">生活適應期</h3>
+                    <ul class="text-[11px] text-slate-500 space-y-1.5 font-medium">
+                        <li>📍 辦理 Compass Card</li>
+                        <li>📍 Nelson Park 農夫市集</li>
+                        <li>📍 熟悉周邊三大超市</li>
+                        <li>📍 史丹利公園騎單車</li>
+                    </ul>
+                </div>
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
+                    <div class="text-[10px] font-bold text-slate-400 mb-1 uppercase italic tracking-widest">WEEK 2</div>
+                    <h3 class="text-lg font-bold text-orange-500 mb-3 font-black">城市探索期</h3>
+                    <ul class="text-[11px] text-slate-500 space-y-1.5 font-medium">
+                        <li>📍 煤氣鎮蒸汽鐘</li>
+                        <li>📍 Canada Place 散步</li>
+                        <li>🎉 7/1 加拿大國慶慶典</li>
+                        <li>📍 羅布森街購物</li>
+                    </ul>
+                </div>
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
+                    <div class="text-[10px] font-bold text-slate-400 mb-1 uppercase italic tracking-widest">WEEK 3</div>
+                    <h3 class="text-lg font-bold text-amber-500 mb-3 font-black">世足盛事期</h3>
+                    <ul class="text-[11px] text-slate-500 space-y-1.5 font-medium">
+                        <li>⚽ PNE 看世界盃轉播</li>
+                        <li>📍 週末維多利亞深度遊</li>
+                        <li>📍 北溫哥華吊橋探險</li>
+                    </ul>
+                </div>
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
+                    <div class="text-[10px] font-bold text-slate-400 mb-1 uppercase italic tracking-widest">WEEK 4</div>
+                    <h3 class="text-lg font-bold text-emerald-600 mb-3 font-black">深度自然期</h3>
+                    <ul class="text-[11px] text-slate-500 space-y-1.5 font-medium">
+                        <li>📍 惠斯勒一日遊</li>
+                        <li>📍 UBC 校園散步</li>
+                        <li>🌅 Sunset Beach 看夕陽</li>
+                        <li>🎁 買齊伴手禮</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 生活地圖 (豐富版) -->
+        <section id="local" class="max-w-6xl mx-auto px-4 py-8 scroll-mt-16 text-left">
+            <h2 class="text-2xl font-black text-slate-800 mb-8">🗺️ 生活地圖 (Downtown)</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                <div class="lg:col-span-3">
+                    <div class="map-wrapper shadow-xl" id="localMap">
+                        <div class="map-road" style="top: 20%; left: 0; right: 0; height: 12%;"></div> 
+                        <div class="map-road" style="top: 60%; left: 0; right: 0; height: 12%;"></div> 
+                        <div class="map-road" style="top: 0; bottom: 0; left: 30%; width: 10%;"></div> 
+                        <div class="map-road" style="top: 0; bottom: 0; left: 70%; width: 10%;"></div> 
+                        
+                        <!-- 核心基地 -->
+                        <div class="map-marker active" style="top: 50%; left: 50%;" onclick="showLocationInfo('landis')">
+                            <div class="marker-dot bg-red-600"></div><div class="marker-label">Landis 宿舍</div>
+                        </div>
+                        <!-- 超市 -->
+                        <div class="map-marker" style="top: 26%; left: 50%;" onclick="showLocationInfo('fresh')"><div class="marker-dot bg-blue-500"></div><div class="marker-label">Fresh St. Market</div></div>
+                        <div class="map-marker" style="top: 10%; left: 35%;" onclick="showLocationInfo('iga')"><div class="marker-dot bg-blue-500"></div><div class="marker-label">IGA</div></div>
+                        <div class="map-marker" style="top: 35%; left: 75%;" onclick="showLocationInfo('hmart')"><div class="marker-dot bg-blue-500"></div><div class="marker-label">H-Mart</div></div>
+                        <!-- 豐富化點位 -->
+                        <div class="map-marker" style="top: 15%; left: 15%;" onclick="showLocationInfo('nelson')"><div class="marker-dot bg-emerald-500"></div><div class="marker-label">Nelson Park</div></div>
+                        <div class="map-marker" style="top: 75%; left: 25%;" onclick="showLocationInfo('tims')"><div class="marker-dot bg-orange-400"></div><div class="marker-label">Tim Hortons</div></div>
+                        <div class="map-marker" style="top: 85%; left: 60%;" onclick="showLocationInfo('shoppers')"><div class="marker-dot bg-red-400"></div><div class="marker-label">Shoppers</div></div>
+                        <div class="map-marker" style="top: 40%; left: 10%;" onclick="showLocationInfo('davie')"><div class="marker-dot bg-purple-500"></div><div class="marker-label">Davie Village</div></div>
+                    </div>
+                </div>
+                <div class="lg:col-span-2">
+                    <div class="bg-white p-6 rounded-[2rem] border border-slate-200 h-full shadow-sm hide-scrollbar overflow-y-auto" id="locationDetails">
+                        <h3 class="text-xl font-black text-slate-800 mb-4 italic">Neighborhood Guide</h3>
+                        <p class="text-sm text-slate-600 leading-relaxed font-medium italic">位於市中心 1200 Hornby St，步行即可抵達市區各大機能點與美食區。</p>
+                        <p class="text-[10px] text-slate-400 mt-6 italic underline">點擊左側地圖標記點查看詳細資訊</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 行前準備 (更新清單) -->
+        <section id="prep" class="max-w-6xl mx-auto px-4 py-12 scroll-mt-16 text-left">
+            <h2 class="text-2xl font-black text-slate-800 mb-10">🧳 行前準備清單</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200">
+                    <div class="flex justify-between items-center mb-8 border-b pb-4">
+                        <h3 class="text-xl font-bold text-slate-800 tracking-tighter italic">Checklist</h3>
+                        <div class="text-xs font-bold bg-red-100 text-red-600 px-4 py-1 rounded-full" id="progressText">0 / 0 已準備</div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8" id="checklistContainer"></div>
+                </div>
+                <div class="flex flex-col space-y-6">
+                    <div class="bg-white p-8 rounded-[2rem] border border-slate-200 flex flex-col items-center shadow-inner">
+                        <h3 class="font-black text-slate-700 mb-6 text-sm italic underline">Packing Progress</h3>
+                        <div class="chart-container"><canvas id="packingChart"></canvas></div>
+                    </div>
+                    <div class="bg-amber-50 p-6 rounded-2xl border border-amber-200">
+                        <p class="text-xs text-amber-900 font-bold leading-relaxed">
+                            💡 溫馨提醒：<br>
+                            溫哥華與台灣電壓相同。7 月晚上 9點半才天黑。出門記得帶環保袋！
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 py-16 text-center text-sm">
+        <p class="text-white font-bold text-xl mb-3 tracking-widest italic">YI & TSAI • VANCOUVER 2026</p>
+        <p class="opacity-60 font-medium">祝旅途愉快，蔡昕如記得準時上課！</p>
+    </footer>
+
+    <script>
+        // --- 導覽滾動邏輯 ---
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.nav-link');
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(s => { if (scrollY >= s.offsetTop - 120) current = s.getAttribute('id'); });
+            navLinks.forEach(l => {
+                l.classList.remove('active');
+                if (l.getAttribute('href').substring(1) === current) l.classList.add('active');
+            });
+        });
+
+        // --- 分頁切換邏輯 ---
+        function switchVanTab(tabId) {
+            document.querySelectorAll('.van-tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+            document.querySelectorAll('.van-tab-btn').forEach(b => b.classList.remove('active-btn'));
+            document.getElementById('btn-' + tabId).classList.add('active-btn');
+        }
+
+        // --- 地圖互動數據 (更新豐富版) ---
+        const locations = {
+            'landis': { icon: '🏠', title: 'Landis Residences', desc: '我們的基地。附簡易廚房與舒適空間，過馬路就是小蔡上學的路。' },
+            'fresh': { icon: '🛒', title: 'Fresh St. Market', desc: '步行5分。高質感超市，熟食與現烤可頌強推！' },
+            'iga': { icon: '🛒', title: 'IGA', desc: '步行7分。位於 Robson St，生活用品與蔬果齊全。' },
+            'hmart': { icon: '🛒', title: 'H-Mart', desc: '步行7分。亞洲超市，想念台灣泡麵或白米必去。' },
+            'nelson': { icon: '🌳', title: 'Nelson Park', desc: '步行3分。每週六有農夫市集，草地非常漂亮。' },
+            'tims': { icon: '🍩', title: 'Tim Hortons', desc: '步行4分。加拿大國民咖啡，冰球甜甜圈必試。' },
+            'shoppers': { icon: '💄', title: 'Shoppers Drug Mart', desc: '步行8分。買藥品、保養品與化妝品最方便。' },
+            'davie': { icon: '🏳️‍🌈', title: 'Davie Village', desc: '步行6分。充滿活力的彩虹社區，晚上氣氛超嗨。' }
+        };
+        function showLocationInfo(id) {
+            const data = locations[id];
+            const detailsDiv = document.getElementById('locationDetails');
+            detailsDiv.innerHTML = `<div class="text-3xl mb-2">${data.icon}</div><h3 class="text-xl font-bold text-slate-800 mb-2">${data.title}</h3><p class="text-sm text-slate-600 font-medium">${data.desc}</p><button onclick="showLocationInfo('landis')" class="text-xs text-red-500 mt-6 font-black underline italic">← 返回基地</button>`;
+        }
+
+        // --- 打包清單內容 (依要求更新) ---
+        const checklistData = {
+            "核心證件": [
+                { id: "c1", text: "護照正本 (效期 6 個月以上)" }, 
+                { id: "c2", text: "eTA 電子簽證 (紙本)" }, 
+                { id: "c4", text: "保險證明與緊急聯絡資訊" }
+            ],
+            "衣物與護理": [
+                { id: "p1", text: "輕便外套 / 防風連帽外套" }, 
+                { id: "p2", text: "好走路的球鞋 (極重要)" }, 
+                { id: "p3", text: "室內拖鞋" }, 
+                { id: "p4", text: "強力保濕乳液與防曬" },
+                { id: "p5", text: "指甲剪與隱形眼鏡備品" }
+            ],
+            "電子與生活": [
+                { id: "e1", text: "筆記型電腦與充電器" }, 
+                { id: "e2", text: "延長線 / 多孔插座" }, 
+                { id: "e3", text: "吹風機 (必帶)" },
+                { id: "e4", text: "一次性枕套 (必帶)" }, 
+                { id: "e5", text: "台灣止癢藥膏與常備藥" }, 
+                { id: "e6", text: "保溫水壺 / 環保購物袋 (必備)" }
+            ]
+        };
+
+        let totalItems = 0, checkedItems = 0;
+        const container = document.getElementById('checklistContainer');
+        for (const [cat, items] of Object.entries(checklistData)) {
+            totalItems += items.length;
+            let h = `<div><h4 class="font-bold text-slate-800 mb-4 border-b pb-1 text-sm italic tracking-tighter underline">${cat}</h4><div class="space-y-3.5">`;
+            items.forEach(i => {
+                h += `<label class="flex items-center space-x-3.5 cursor-pointer group"><input type="checkbox" class="pack-checkbox w-4.5 h-4.5 rounded text-red-600 border-slate-300"><span class="text-[13px] text-slate-600 font-medium group-hover:text-red-500 transition-colors">${i.text}</span></label>`;
+            });
+            container.innerHTML += h + `</div></div>`;
+        }
+        document.getElementById('progressText').innerText = `0 / ${totalItems} 已準備`;
+
+        const ctx = document.getElementById('packingChart').getContext('2d');
+        const packingChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: { labels: ['已打包', '待處理'], datasets: [{ data: [0, totalItems], backgroundColor: ['#ef4444', '#f1f5f9'], borderWidth: 0 }] },
+            options: { responsive: true, maintainAspectRatio: false, cutout: '80%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 8, font: { size: 11, weight: 'bold' } } } } }
+        });
+
+        document.querySelectorAll('.pack-checkbox').forEach(box => {
+            box.addEventListener('change', (e) => {
+                if (e.target.checked) checkedItems++; else checkedItems--;
+                document.getElementById('progressText').innerText = `${checkedItems} / ${totalItems} 已準備`;
+                packingChart.data.datasets[0].data = [checkedItems, totalItems - checkedItems];
+                packingChart.update();
+            });
+        });
+    </script>
+</body>
+</html>
